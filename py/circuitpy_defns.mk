@@ -142,6 +142,9 @@ endif
 ifeq ($(CIRCUITPY_COUNTIO),1)
 SRC_PATTERNS += countio/%
 endif
+ifeq ($(CIRCUITPY_DAPIO),1)
+SRC_PATTERNS += dapio/%
+endif
 ifeq ($(CIRCUITPY_DIGITALIO),1)
 SRC_PATTERNS += digitalio/%
 endif
@@ -320,6 +323,7 @@ $(filter $(SRC_PATTERNS), \
 	microcontroller/RunMode.c \
 	math/__init__.c \
 	_eve/__init__.c \
+	dapio/__init__.c \
 )
 
 SRC_BINDINGS_ENUMS += \
@@ -353,6 +357,7 @@ SRC_SHARED_MODULE_ALL = \
 	busio/OneWire.c \
 	aesio/__init__.c \
 	aesio/aes.c \
+	dapio/__init__.c \
 	displayio/Bitmap.c \
 	displayio/ColorConverter.c \
 	displayio/Display.c \

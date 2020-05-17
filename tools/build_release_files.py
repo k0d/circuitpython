@@ -8,11 +8,12 @@ import build_board_info as build_info
 import time
 
 for port in build_info.SUPPORTED_PORTS:
-    result = subprocess.run("rm -rf ../ports/{port}/build*".format(port=port), shell=True)
+    result = subprocess.run(
+        "rm -rf ../ports/{port}/build*".format(port=port), shell=True)
 
 PARALLEL = "-j 5"
 if "GITHUB_ACTION" in os.environ:
-    PARALLEL="-j 2"
+    PARALLEL = "-j 2"
 
 all_boards = build_info.get_board_mapping()
 build_boards = list(all_boards.keys())
@@ -29,7 +30,8 @@ for board in build_boards:
     board_info = all_boards[board]
 
     for language in languages:
-        bin_directory = "../bin/{board}/{language}".format(board=board, language=language)
+        bin_directory = "../bin/{board}/{language}".format(
+            board=board, language=language)
         os.makedirs(bin_directory, exist_ok=True)
         start_time = time.monotonic()
 
@@ -37,8 +39,8 @@ for board in build_boards:
         # But sometimes a particular language needs to be built from scratch, if, for instance,
         # CFLAGS_INLINE_LIMIT is set for a particular language to make it fit.
         clean_build_check_result = subprocess.run(
-            "make -C ../ports/{port} TRANSLATION={language} BOARD={board} check-release-needs-clean-build | fgrep 'RELEASE_NEEDS_CLEAN_BUILD = 1'".format(
-                port = board_info["port"], language=language, board=board),
+            "make -j4 -C ../ports/{port} TRANSLATION={language} BOARD={board} check-release-needs-clean-build | fgrep 'RELEASE_NEEDS_CLEAN_BUILD = 1'".format(
+                port=board_info["port"], language=language, board=board),
             shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         clean_build = clean_build_check_result.returncode == 0
 
@@ -47,8 +49,8 @@ for board in build_boards:
             build_dir += "-{language}".format(language=language)
 
         make_result = subprocess.run(
-            "make -C ../ports/{port} TRANSLATION={language} BOARD={board} BUILD={build}".format(
-                port = board_info["port"], language=language, board=board, build=build_dir),
+            "make -j4 -C ../ports/{port} TRANSLATION={language} BOARD={board} BUILD={build}".format(
+                port=board_info["port"], language=language, board=board, build=build_dir),
             shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
         build_duration = time.monotonic() - start_time
@@ -77,7 +79,8 @@ for board in build_boards:
                         exit_status = 1
 
         print("Build {board} for {language}{clean_build} took {build_duration:.2f}s and {success}".format(
-            board=board, language=language, clean_build=(" (clean_build)" if clean_build else ""),
+            board=board, language=language, clean_build=(
+                " (clean_build)" if clean_build else ""),
             build_duration=build_duration, success=success))
 
         print(make_result.stdout.decode("utf-8"))
